@@ -1,0 +1,27 @@
+{
+  "name": "game-kit",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/protocol",
+    "packages/server",
+    "packages/client",
+    "packages/bots"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "oxlint",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "pack": "node tools/pack.mjs",
+    "release": "node tools/release.mjs"
+  },
+  "devDependencies": {
+    "oxlint": "^1.81.0",
+    "typescript": "~6.0.2"
+  }
+}

@@ -1,0 +1,31 @@
+name: Release
+
+# A pushed tag v<version> (npm run release -- <version>) packs every kit package and attaches the
+# tarballs to a GitHub Release; games depend on their download URLs.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Tag matches the package version
+        run: |
+          version=$(jq -r .version packages/protocol/package.json)
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME, packages at $version"; exit 1; }
+      - run: npm ci
+      - run: npm run check
+      - run: npm run pack
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" .release/*.tgz --generate-notes --title "$GITHUB_REF_NAME"
