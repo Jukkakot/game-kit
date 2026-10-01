@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { axiomOptionsOf, configureLogger, log, serverVersion } from "../src/index.js";
+import { axiomOptionsOf, configureLogger, log, serverVersion, setLogGame } from "../src/index.js";
 import { captureLogs } from "./support/captureLogs.js";
 
-afterEach(() => configureLogger());
+afterEach(() => {
+  configureLogger();
+  setLogGame("unknown");
+});
 
 describe("observability › Structured log lines", () => {
   it("Server event: one JSON line, level and evt first, context ids present", () => {
@@ -48,6 +51,27 @@ describe("observability › Structured log lines", () => {
   });
 });
 
+describe("observability › Every log line names its game and side", () => {
+  it("server and client lines carry the game, then src, ver", () => {
+    setLogGame("neljan-suora");
+    const logs = captureLogs();
+    log.info("server.started", { port: 1 });
+    log.client({ level: "warn", evt: "client.warn", ts: "2026-09-27T10:00:00.000Z", fields: { game: "spoofed" } }, "abc1234");
+
+    const [server, client] = logs.lines();
+    expect(server).toMatchObject({ game: "neljan-suora", src: "server" });
+    expect(client).toMatchObject({ game: "neljan-suora", src: "client" });
+    expect(Object.keys(server!).slice(0, 2)).toEqual(["level", "evt"]);
+    expect(Object.keys(server!).slice(-3)).toEqual(["game", "src", "ver"]);
+  });
+
+  it("game missing: lines say unknown", () => {
+    const logs = captureLogs();
+    log.info("server.started");
+    expect(logs.lines()[0]).toMatchObject({ game: "unknown" });
+  });
+});
+
 describe("observability › Central log store", () => {
   /** In-memory stream that parses the lines it receives. */
   const memory = () => {
@@ -60,6 +84,7 @@ describe("observability › Central log store", () => {
     const stdout = memory();
     const axiom = memory();
     const axiomStream = vi.fn(() => axiom.stream);
+    setLogGame("shipped-game");
     configureLogger({ env: shipping, destination: stdout.stream, axiomStream });
     log.info("server.started", { port: 1 });
     log.client({ level: "warn", evt: "client.warn", ts: "2026-09-27T10:00:00.000Z" }, "abc1234");
@@ -68,6 +93,7 @@ describe("observability › Central log store", () => {
     expect(axiom.lines()).toEqual(stdout.lines());
     expect(axiom.lines().map((l) => l.evt)).toEqual(["server.started", "client.warn"]);
     expect(Date.parse(axiom.lines()[0].time)).not.toBeNaN();
+    expect(axiom.lines().map((l) => l.game)).toEqual(["shipped-game", "shipped-game"]);
   });
 
   it("Not configured, or not production: nothing is shipped", () => {

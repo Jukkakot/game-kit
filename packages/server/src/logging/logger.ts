@@ -52,7 +52,7 @@ export function serverVersion(env: NodeJS.ProcessEnv = process.env): string {
 
 function devDestination(env: NodeJS.ProcessEnv): DestinationStream {
   return pino.multistream([
-    { level: "trace", stream: pretty({ colorize: true, ignore: "src,ver", singleLine: true }) },
+    { level: "trace", stream: pretty({ colorize: true, ignore: "game,src,ver", singleLine: true }) },
     // Sync so the file is always ready, even when the process exits right after an error.
     { level: "trace", stream: pino.destination({ dest: devLogFile(env), mkdir: true, sync: true }) },
   ]);
@@ -92,18 +92,26 @@ function createPino(options: LoggerOptions): LoggerState {
 
 let state = createPino({});
 
+/** The game's kebab name on every line, so games can share one log store; `unknown` until set. */
+let game = "unknown";
+
+/** Names the game on every following line; call first thing at server startup. */
+export function setLogGame(name: string): void {
+  game = name;
+}
+
 /** Rebuilds the logger, e.g. to capture output in tests. */
 export function configureLogger(options: LoggerOptions = {}): void {
   state = createPino(options);
 }
 
-/** Orders keys `evt, room, player, …fields, src, ver[, time]` after pino's `level`. */
+/** Orders keys `evt, room, player, …fields, game, src, ver[, time]` after pino's `level`. */
 function line(evt: string, fields: LogFields | undefined, src: "server" | "client", ver: string) {
   const { room, player, ...rest } = fields ?? {};
   const obj: Record<string, unknown> = { evt };
   if (room !== undefined) obj.room = room;
   if (player !== undefined) obj.player = player;
-  Object.assign(obj, rest, { src, ver });
+  Object.assign(obj, rest, { game, src, ver });
   if (state.timed) obj.time = new Date().toISOString();
   return obj;
 }

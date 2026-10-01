@@ -22,3 +22,6 @@ logs/
 
 # Packed tarballs (npm run pack)
 .release/
+
+# Built Axiom dashboard (tools/axiom/dashboard.py)
+tools/axiom/dashboard.json

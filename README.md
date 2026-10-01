@@ -85,3 +85,19 @@ its `kit:use` script (Palikka: `tools/kit/use.mjs`):
 - `npm run kit:use -- local` — use a local checkout at `../game-kit` (runs `npm run pack -- --local`
   there and installs those tarballs) to try kit changes in the game before releasing. Run it again
   after each kit edit; the game's lint refuses to commit a local setup.
+
+## Logs (Axiom)
+
+All kit games ship their production logs to one Axiom dataset, **`games`** (org "Jukka projects",
+EU edge `eu-central-1.aws.edge.axiom.co`, 30-day retention); the personal tier allows only three
+datasets. Every line names its game in `game` (`setLogGame("<name>")` first in the game's
+`server/src/index.ts`; `unknown` if missing) and its side in `src` (`server`/`client`). Query one
+game with `['games'] | where game == "<name>"`.
+
+- **Token:** one shared ingest-only token for `games`. It lives as the secret `AXIOM_TOKEN` on each
+  game's Render service and as the user env var `AXIOM_GAMES_TOKEN` (never printed or committed).
+  A new game copies it from there; nothing is created per game. Rotate: create a new ingest token
+  for `games` (`tools/axiom/axiom.ps1 POST /v2/tokens …`), set it on every game's Render service
+  and in `AXIOM_GAMES_TOKEN`, then delete the old token.
+- **Dashboard** "Pelit – lokit" (filter Peli picks the game): built by `tools/axiom/dashboard.py`,
+  uploaded with `tools/axiom/axiom.ps1` (script header). Uid: not uploaded yet.

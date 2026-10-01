@@ -1,15 +1,16 @@
-"""Builds the Axiom dashboard "Starter Game – lokit" (schemaVersion 2) as dashboard.json next to this file.
+"""Builds the shared Axiom dashboard "Pelit – lokit" (schemaVersion 2) as dashboard.json next to this file.
 
+All kit games ship to the dataset `games`; every line names its game in `game` (README → Logs).
 Create:  python tools/axiom/dashboard.py; pwsh tools/axiom/axiom.ps1 POST /v2/dashboards tools/axiom/dashboard.json
-Update:  the same with PUT /v2/dashboards/uid/<uid> (the uid is in docs/operations.md → Logs;
+Update:  the same with PUT /v2/dashboards/uid/<uid> (the uid is in README → Logs;
          "overwrite" replaces the live version).
 """
 import os
 import json
 import uuid
 
-DS = "starter-game"
-PARAMS = ('declare query_parameters (source_filter:string = "", kind_filter:string = "", '
+DS = "games"
+PARAMS = ('declare query_parameters (game_filter:string = "", source_filter:string = "", kind_filter:string = "", '
           'room_filter:string = "", bot_filter:string = "", ver_filter:string = "");\n')
 BASE = PARAMS + f"""['{DS}']
 | extend kind = case(
@@ -19,6 +20,7 @@ BASE = PARAMS + f"""['{DS}']
     evt == "http.request", "http",
     "other")
 | extend isBot = coalesce(tobool(column_ifexists("bot", bool(null))), false)
+| where isempty(game_filter) or game == game_filter
 | where isempty(source_filter) or src == source_filter
 | where isempty(kind_filter) or kind == kind_filter or (kind_filter == "problems" and level in ("error", "warn"))
 | where isempty(room_filter) or tostring(column_ifexists("room", "")) contains room_filter
@@ -49,11 +51,15 @@ def list_filter(fid, name, options):
 
 
 filters = [
+    {"active": True, "id": "game_filter", "name": "Peli", "type": "select", "selectType": "apl",
+     "apl": {"apl": f"['{DS}'] | distinct game | project key=game, value=game | sort by key asc",
+             "queryOptions": {"datasets": DS, "quickRange": "30d"}},
+     "options": [{"key": "Kaikki", "value": "", "default": True}]},
     list_filter("source_filter", "Lähde", [("Palvelin", "server"), ("Client", "client")]),
     list_filter("kind_filter", "Tyyppi", [("Audit (komennot)", "audit"), ("Pelin kulku", "game"),
                                           ("Yhteydet", "conn"), ("HTTP", "http"),
                                           ("Virheet ja varoitukset", "problems")]),
-    {"active": True, "id": "room_filter", "name": "Peli (tunnus)", "type": "search", "selectType": "list",
+    {"active": True, "id": "room_filter", "name": "Pelihuone (tunnus)", "type": "search", "selectType": "list",
      "options": [{"key": "Kaikki", "value": "", "default": True}]},
     list_filter("bot_filter", "Botit", [("Vain ihmiset", "people"), ("Vain botit", "bots")]),
     {"active": True, "id": "ver_filter", "name": "Versio", "type": "select", "selectType": "apl",
@@ -71,14 +77,14 @@ add(stat("Hylättyjä komentoja", BASE + '| where evt == "cmd.rejected" | summar
 add(stat("Botin varasiirtoja", BASE + '| where evt == "bot.fallback" | summarize count() by bin_auto(_time)', "Purple"), 9, 1, 3, 3)
 
 ts = lambda name, apl: {"name": name, "type": "TimeSeries", "datasetId": DS, "query": query(apl)}
-add(ts("Lokirivit tason mukaan", BASE + "| summarize count() by bin_auto(_time), level"), 0, 4, 6, 5)
+add(ts("Lokirivit pelin mukaan", BASE + "| summarize count() by bin_auto(_time), game"), 0, 4, 6, 5)
 add(ts("Päättyneet pelit syyn mukaan", BASE + '| where evt == "game.finished" | summarize count() by bin_auto(_time), reason = tostring(column_ifexists("reason", ""))'), 6, 4, 6, 5)
 
 table_settings = {"columns": [], "settings": {"hideNulls": True, "highlightSeverity": True, "isLive": "OFF",
                                               "showEvent": True, "showFieldList": False, "showHistory": False,
                                               "showRaw": False, "showSavedQueries": False, "showTimestamp": True,
                                               "wrapLines": True}}
-LOG_TABLE = BASE + """| project _time, level, evt, room = column_ifexists("room", ""), seat = column_ifexists("seat", long(null)),
+LOG_TABLE = BASE + """| project _time, game, level, evt, room = column_ifexists("room", ""), seat = column_ifexists("seat", long(null)),
     player = column_ifexists("player", ""), cmd = column_ifexists("cmd", ""), code = tostring(column_ifexists("code", "")),
     msg = column_ifexists("msg", ""), src, ver
 | sort by _time desc
@@ -89,12 +95,12 @@ add({"name": "Hylätyt komennot koodeittain", "type": "Table", "datasetId": DS,
      "query": query(BASE + '| where evt == "cmd.rejected" | summarize kpl = count() by cmd = tostring(cmd), code = tostring(code) | sort by kpl desc'),
      "tableSettings": table_settings}, 0, 23, 6, 6)
 add({"name": "Pelityypit", "type": "Table", "datasetId": DS,
-     "query": query(BASE + '| where evt == "game.started" | summarize kpl = count() by pikapeli = tostring(column_ifexists("quick", false)), pelaajia = array_length(seats) | sort by kpl desc'),
+     "query": query(BASE + '| where evt == "game.started" | summarize kpl = count() by game, pikapeli = tostring(column_ifexists("quick", false)), pelaajia = array_length(seats) | sort by kpl desc'),
      "tableSettings": table_settings}, 6, 23, 6, 6)
 
 dashboard = {
-    "name": "Starter Game – lokit",
-    "description": "Palikan tuotantolokit (palvelin + client). Suodata yläpalkista lähteen, tyypin, pelin, bottien ja version mukaan.",
+    "name": "Pelit – lokit",
+    "description": "Kaikkien kit-pelien tuotantolokit (palvelin + client), datasetti games. Suodata yläpalkista pelin, lähteen, tyypin, pelihuoneen, bottien ja version mukaan.",
     "owner": "X-AXIOM-EVERYONE",
     "charts": charts,
     "layout": layout,

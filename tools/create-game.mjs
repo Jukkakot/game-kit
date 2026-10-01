@@ -112,6 +112,6 @@ Setup checklist (docs/operations.md → Setup checklist; each step can wait unti
   2. GitHub Pages: source "GitHub Actions"; repo variable VITE_SERVER_URL = the Render URL
   3. Render: new Blueprint from render.yaml; deploy hook URL into repo secret RENDER_DEPLOY_HOOK_URL;
      check ALLOWED_ORIGINS
-  4. Axiom: dataset ${name} (EU); ingest token into Render's AXIOM_TOKEN; import tools/axiom/dashboard.json
+  4. Axiom: nothing to create; the shared token (user env AXIOM_GAMES_TOKEN) into Render's AXIOM_TOKEN
   5. Run the prod-smoke workflow once by hand
 `);
