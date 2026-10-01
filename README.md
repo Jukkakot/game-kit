@@ -50,7 +50,7 @@ commit. Then it prints the next steps and the setup checklist.
 - `<kebab-name>`, e.g. `connect-four`: the npm scope (`@connect-four/server`), storage prefix,
   Render service, Axiom dataset, Pages path. `--title` (UI and docs) defaults to the name in title
   case; `--theme` to `Placeholder` until the game's `theme` change.
-- `--port` is required: a server port no other game uses (Labyrinth 2567, Palikka 2577); the
+- `--port` is required: a server port no other game uses (Labyrinth 2567, Palikka 2577, Neljän suora 2587); the
   client gets port + 2606, the preview client + 1.
 - It creates nothing outside `--dir`: no GitHub repo, Render service, Axiom dataset or Pages site.
   Those are the generated game's `docs/operations.md` → Setup checklist.

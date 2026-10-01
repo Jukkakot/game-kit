@@ -16,7 +16,7 @@ export const PLACEHOLDER = {
 export const CLIENT_PORT_OFFSET = 2606;
 
 /** Ports the known games use; a new game must pick another. */
-export const KNOWN_PORTS = { labyrinth: 2567, palikka: 2577 };
+export const KNOWN_PORTS = { labyrinth: 2567, palikka: 2577, "neljan-suora": 2587 };
 
 /** Folders never copied or scanned. */
 export const SKIP_DIRS = new Set(["node_modules", "dist", "build", ".release", "tournament-results", "test-results", "playwright-report", ".git"]);
