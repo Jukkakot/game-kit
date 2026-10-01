@@ -111,7 +111,8 @@ kit packages come built (`dist/` only).
   optional `optionsChange`, `turnLogFacts`, `stateFacts`. Here: `starterGameServer` in `GameRoom.ts`.
 - **Client part** (`GameClientDefinition` in `@game-kit/client`): `toView(state, lobby)`,
   `askBot(view, speed, seed)` for the online runner, and `local` for device games (save key and
-  check, seats, `parseMove`, `askBot(game, speed)`, `child`, `turn`, `logFacts`). Here:
+  check, seats, `parseMove`, `askBot(game, speed)`, `child`, `turn`, `logFacts`, optional
+  `rematchOptions(previous, options)` for the next game's options, e.g. who starts). Here:
   `client/src/session/starterGameClient.ts`.
 
 ## State sync — Implemented

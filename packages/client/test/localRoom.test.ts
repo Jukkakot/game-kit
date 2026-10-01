@@ -121,6 +121,22 @@ describe("device-games › Game against bots on the device", () => {
     const next = restore(room.state.rematchRoomId!)!;
     expect(viewOf(next).seats.map((s) => s.name)).toEqual(["Maija", "Kettu", "Ilves"]);
     expect(next.game.moves).toBe(0);
+    expect(loadLocalGame(next.roomId)?.options).toEqual({});
+  });
+
+  it("Rematch: the game's rematchOptions give the next game's options", async () => {
+    vi.useFakeTimers();
+    const base = connectFourClient();
+    const start = vi.spyOn(base.rules, "start");
+    const rematchOptions = vi.fn(() => ({ seats: 3 as const }));
+    const room = LocalRoom.create({ ...base, local: { ...base.local, rematchOptions } }, "Maija", 1, {}, { seed: () => 7 });
+    await room.request("setAutoplay", { on: true });
+    await runBots(() => room.game.over);
+    expect(await room.request("rematch", {})).toEqual({ ok: true });
+    expect(rematchOptions).toHaveBeenCalledWith(room.game, {});
+    expect(start).toHaveBeenLastCalledWith(expect.any(Number), expect.any(Array), { seats: 3 });
+    expect(loadLocalGame(room.state.rematchRoomId!)?.options).toEqual({ seats: 3 });
+    start.mockRestore();
   });
 });
 

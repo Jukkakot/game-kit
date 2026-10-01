@@ -86,6 +86,9 @@ its `kit:use` script (Palikka: `tools/kit/use.mjs`):
   there and installs those tarballs) to try kit changes in the game before releasing. Run it again
   after each kit edit; the game's lint refuses to commit a local setup.
 
+Optional hooks a game may implement: `local.rematchOptions(previous, options)` in the client
+definition gives a device game's rematch its options (since 0.3.0; e.g. let the other seat start).
+
 ## Logs (Axiom)
 
 All kit games ship their production logs to one Axiom dataset, **`games`** (org "Jukka projects",

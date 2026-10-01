@@ -41,5 +41,10 @@ export interface GameClientDefinition<G, M, O, V extends LobbyView> {
     turn(game: G): number;
     /** Facts of the device game's start and end log lines, e.g. `{ dealSeed, moves }`. */
     logFacts?(game: G): LogFields;
+    /**
+     * The options of the rematch after `previous` ended (e.g. to let the other seat start);
+     * without it the rematch keeps `options`.
+     */
+    rematchOptions?(previous: G, options: O): O;
   };
 }

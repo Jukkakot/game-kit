@@ -255,11 +255,15 @@ export class LocalRoom<G, M, O, V extends LobbyView = LobbyView> implements Game
     return { ok: true };
   }
 
-  /** Creates the next game with the same seats and options and syncs its id; the session then moves there. */
+  /**
+   * Creates the next game with the same seats and options (or the game's `rematchOptions`) and syncs
+   * its id; the session then moves there.
+   */
   private rematch(): CommandResult {
     if (!this.rules.isOver(this.game)) return { ok: false, code: "WRONG_PHASE" };
     if (this.saved.rematchRoomId) return { ok: true };
-    const { seats, options } = this.saved;
+    const { seats } = this.saved;
+    const options = this.definition.local.rematchOptions?.(this.game, this.saved.options) ?? this.saved.options;
     const next = newGame(this.definition, seats.find((s) => !s.bot)!.name, seats.filter((s) => s.bot).length, options, this.deps);
     // The new game is the saved one now (the session opens it by its id); this one only remembers where it went.
     this.saved = { ...this.saved, rematchRoomId: next.roomId };
