@@ -28,7 +28,8 @@ for (const pkg of PACKAGES) {
 }
 run("npm install --no-audit --no-fund");
 run("npm run check");
-run(`git commit -am "chore: release v${version}"`);
+// The first release keeps the version the packages already have: nothing to commit.
+if (output("git status --porcelain")) run(`git commit -am "chore: release v${version}"`);
 run(`git tag v${version}`);
 run(`git push origin main v${version}`);
 console.log(`Pushed v${version}: the release workflow attaches the tarballs (gh run watch)`);
