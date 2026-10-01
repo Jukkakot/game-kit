@@ -100,4 +100,4 @@ game with `['games'] | where game == "<name>"`.
   for `games` (`tools/axiom/axiom.ps1 POST /v2/tokens …`), set it on every game's Render service
   and in `AXIOM_GAMES_TOKEN`, then delete the old token.
 - **Dashboard** "Pelit – lokit" (filter Peli picks the game): built by `tools/axiom/dashboard.py`,
-  uploaded with `tools/axiom/axiom.ps1` (script header). Uid: not uploaded yet.
+  uploaded with `tools/axiom/axiom.ps1` (script header). Uid `3345cc1f-c285-4c6b-a0c2-8bc7bc583971`.
