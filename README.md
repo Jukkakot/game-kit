@@ -54,6 +54,8 @@ commit. Then it prints the next steps and the setup checklist.
   client gets port + 2606, the preview client + 1.
 - It creates nothing outside `--dir`: no GitHub repo, Render service, Axiom dataset or Pages site.
   Those are the generated game's `docs/operations.md` → Setup checklist.
+- Once the repo is on GitHub, `npm run homepage-card -- --push` in the game puts its card on the
+  games front page (https://jukkakot.github.io); the game reruns it when its look changes.
 - The new game is ready for spec work: OpenSpec (generic specs of what the kit already does, a
   starter roadmap beginning with `theme`), the docs wiki, `.claude` (autopilot off), CI, deploy,
   E2E smoke and the bot tournament.
