@@ -18,7 +18,8 @@ concurrency:
 
 jobs:
   smoke:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    # Nothing is live before the setup checklist (docs/operations.md) sets VITE_SERVER_URL.
+    if: vars.VITE_SERVER_URL != '' && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     env:
       HEALTH_URL: ${{ vars.VITE_SERVER_URL }}/health

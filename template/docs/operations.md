@@ -22,7 +22,9 @@ Nothing is deployed until the [setup checklist](#setup-checklist) is done. Then:
 
 `create-game` created nothing outside this folder. Each step says what needs it, so it can wait
 until the first deploy, or be skipped while the game runs locally only. Commands assume the GitHub
-CLI (`gh`) is logged in as the repo owner.
+CLI (`gh`) is logged in as the repo owner. Until a step is done, the workflows that need it skip
+with a notice instead of failing: the client deploy and the production smoke wait for
+`VITE_SERVER_URL`, CI's `deploy-server` job also for `RENDER_DEPLOY_HOOK_URL`.
 
 1. **GitHub repo** (public, so Actions minutes are free; CI runs from then on):
    `gh repo create Jukkakot/starter-game --public --source . --push`.

@@ -67,7 +67,13 @@ jobs:
           HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
           HEALTH_URL: ${{ vars.VITE_SERVER_URL }}/health
           SERVER_PATHS: server packages/rules packages/protocol package-lock.json render.yaml
+          SERVER_URL: ${{ vars.VITE_SERVER_URL }}
         run: |
+          # A fresh repo has no server yet (docs/operations.md → Setup checklist).
+          if [ -z "$HOOK" ] || [ -z "$SERVER_URL" ]; then
+            echo "::notice::Server deploy skipped: RENDER_DEPLOY_HOOK_URL or VITE_SERVER_URL is not set (docs/operations.md → Setup checklist)"
+            exit 0
+          fi
           # A sleeping server takes about a minute to answer.
           live=$(curl -sf --retry 12 --retry-delay 10 --retry-all-errors --max-time 20 "$HEALTH_URL" | jq -r '.version // empty' || true)
           if [ -n "$live" ] && git cat-file -e "$live^{commit}" 2>/dev/null; then
