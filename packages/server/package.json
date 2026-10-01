@@ -1,6 +1,6 @@
 {
   "name": "@game-kit/server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Game kit: the room base, the generic game room driven by the game contract, and server logging",
   "type": "module",
