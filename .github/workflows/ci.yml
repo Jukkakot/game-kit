@@ -25,3 +25,19 @@ jobs:
       - run: npm run build
       - name: Packs
         run: npm run pack
+
+  # A game generated from template/ against this commit's packages passes its own check chain and
+  # E2E smoke (npm run template:check), so the template cannot rot.
+  template:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run template:check

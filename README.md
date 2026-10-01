@@ -35,6 +35,44 @@ Sets the version in all four packages (one version for all), runs the check chai
 dependencies pointing at the same release) and attaches the tarballs to the GitHub Release. Never
 re-tag: fix forward with a new patch version.
 
+## Start a new game
+
+```sh
+npm run create-game -- <kebab-name> --port <server-port> [--title "<UI title>"] [--theme <name>]
+                       [--dir <path>] [--kit <version>|local]
+```
+
+Copies [`template/`](template/) (a complete game project) to `--dir` (default `../<name>`),
+replaces the placeholder names and ports, points the game at a kit release (default: this
+checkout's newest `v*` tag; `local` packs this checkout), runs `npm install` and makes the first
+commit. Then it prints the next steps and the setup checklist.
+
+- `<kebab-name>`, e.g. `connect-four`: the npm scope (`@connect-four/server`), storage prefix,
+  Render service, Axiom dataset, Pages path. `--title` (UI and docs) defaults to the name in title
+  case; `--theme` to `Placeholder` until the game's `theme` change.
+- `--port` is required: a server port no other game uses (Labyrinth 2567, Palikka 2577); the
+  client gets port + 2606, the preview client + 1.
+- It creates nothing outside `--dir`: no GitHub repo, Render service, Axiom dataset or Pages site.
+  Those are the generated game's `docs/operations.md` → Setup checklist.
+- The new game is ready for spec work: OpenSpec (generic specs of what the kit already does, a
+  starter roadmap beginning with `theme`), the docs wiki, `.claude` (autopilot off), CI, deploy,
+  E2E smoke and the bot tournament.
+
+The template is written as a game called **Starter Game** (`starter-game`, `starterGame`,
+`StarterGame`, ports 2597/5203) playing a placeholder **Ristinolla** (tic-tac-toe) through the
+whole game contract: rules, protocol, server definition, client definition and board, bot adapter,
+tournament and strength requirement. `create-game` refuses to finish when a placeholder form, a
+template port or another game's name is left in the new game.
+
+**Keeping it working:** `npm run template:check` generates a game against this checkout's packages
+and runs its lint, typecheck, tests, build, bundle size and E2E smoke; the CI job `template` runs
+the same on every push. **Keeping it current:** a generic improvement made in a game is ported to
+`template/` in the same piece of work when cheap, otherwise noted as a kit TODO in the game's
+`tasks.md`. Existing games are never re-generated.
+
+Later idea: the "as is" client components (ui, settings, motion, generic game controls) are copies
+in every game; once two real games share them, they may move to a `@game-kit/ui` package.
+
 ## Use in a game
 
 A game depends on the release tarballs, e.g.

@@ -18,7 +18,9 @@
     "lint": "oxlint",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "pack": "node tools/pack.mjs",
-    "release": "node tools/release.mjs"
+    "release": "node tools/release.mjs",
+    "create-game": "node tools/create-game.mjs",
+    "template:check": "node tools/template-check.mjs"
   },
   "devDependencies": {
     "oxlint": "^1.81.0",
