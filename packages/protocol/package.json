@@ -1,6 +1,6 @@
 {
   "name": "@game-kit/protocol",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Game kit: the game contract, generic command and lobby definitions, error codes and log events",
   "type": "module",

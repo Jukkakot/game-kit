@@ -1,6 +1,6 @@
 {
   "name": "@game-kit/client",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Game kit: the session hook, device games with undo and saving, the lobby view, stores and client logging",
   "type": "module",
